@@ -5,7 +5,11 @@
 -- Supabase creates a 'users' table in the 'auth' schema. 
 -- We'll create a public profile table.
 
-CREATE TYPE user_role AS ENUM ('user', 'admin', 'driver');
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role') THEN
+    CREATE TYPE user_role AS ENUM ('user', 'admin', 'driver');
+  END IF;
+END $$;
 
 CREATE TABLE public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -54,22 +58,30 @@ CREATE TABLE public.addresses (
 );
 
 -- 5. Orders
-CREATE TYPE order_status AS ENUM (
-  'scheduled', 
-  'driver_assigned', 
-  'picked_up', 
-  'weighed', -- Admin adds weight here
-  'washing', 
-  'out_for_delivery', 
-  'delivered', 
-  'cancelled'
-);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'order_status') THEN
+    CREATE TYPE order_status AS ENUM (
+      'scheduled', 
+      'driver_assigned', 
+      'picked_up', 
+      'weighed', 
+      'washing', 
+      'out_for_delivery', 
+      'delivered', 
+      'cancelled'
+    );
+  END IF;
+END $$;
 
-CREATE TYPE service_type AS ENUM (
-  'subscription_wash',
-  'one_time_standard',
-  'one_time_ironing'
-);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'service_type') THEN
+    CREATE TYPE service_type AS ENUM (
+      'subscription_wash',
+      'one_time_standard',
+      'one_time_ironing'
+    );
+  END IF;
+END $$;
 
 CREATE TABLE public.orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
