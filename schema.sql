@@ -116,8 +116,15 @@ DROP POLICY IF EXISTS "Users can view their own orders" ON public.orders;
 CREATE POLICY "Users can view their own orders" ON public.orders FOR SELECT USING (auth.uid() = user_id);
 
 -- Admin policies
--- (In practice, you'd check a role in the profiles table)
--- CREATE POLICY "Admins can view all" ...
+DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
+CREATE POLICY "Admins can view all profiles" ON public.profiles FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+);
+
+DROP POLICY IF EXISTS "Admins can view all orders" ON public.orders;
+CREATE POLICY "Admins can view all orders" ON public.orders FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+);
 
 -- 7. Automatic Profile Creation on Signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
