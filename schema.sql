@@ -85,10 +85,10 @@ END $$;
 
 CREATE TABLE IF NOT EXISTS public.orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id),
+  user_id UUID NOT NULL REFERENCES public.profiles(id),
   subscription_id UUID REFERENCES public.subscriptions(id), 
-  address_id UUID NOT NULL REFERENCES public.addresses(id),
-  driver_id UUID REFERENCES auth.users(id), -- driver is just a user with role='driver'
+  address_id UUID REFERENCES public.addresses(id),
+  driver_id UUID REFERENCES public.profiles(id), -- driver is just a user with role='driver'
   service service_type NOT NULL,
   status order_status DEFAULT 'scheduled',
   weight_kg FLOAT, -- updated by admin

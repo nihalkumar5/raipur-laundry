@@ -20,7 +20,7 @@ export type Order = {
   id: string;
   user_id: string;
   subscription_id?: string | null;
-  address_id: string;
+  address_id?: string | null;
   driver_id?: string | null;
   service: string;
   status: 'scheduled' | 'driver_assigned' | 'picked_up' | 'weighed' | 'washing' | 'out_for_delivery' | 'delivered' | 'cancelled';

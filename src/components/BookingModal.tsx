@@ -57,8 +57,7 @@ export default function BookingModal({ isOpen, onClose }: { isOpen: boolean; onC
           status: 'scheduled',
           service: selectedService?.name || 'Standard Wash',
           pickup_time: new Date().toISOString(), 
-          notes: `${booking.date} @ ${booking.slot}`,
-          address_id: '864e8371-f763-44f2-9844-38686e00346b'
+          notes: `${booking.date} @ ${booking.slot} | ${booking.address}`,
         });
 
         addOrder({
@@ -68,7 +67,6 @@ export default function BookingModal({ isOpen, onClose }: { isOpen: boolean; onC
           weight_kg: booking.weight,
           service: selectedService?.name || 'Standard Wash',
           pickup_time: new Date().toISOString(),
-          address_id: '864e8371-f763-44f2-9844-38686e00346b',
           created_at: new Date().toISOString()
         });
         
