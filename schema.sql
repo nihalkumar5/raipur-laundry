@@ -100,7 +100,17 @@ CREATE TABLE IF NOT EXISTS public.orders (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 6. Row Level Security (Initial Policies)
+-- 6. Functions & RLS
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.weekly_quotas ENABLE ROW LEVEL SECURITY;
@@ -117,14 +127,10 @@ CREATE POLICY "Users can view their own orders" ON public.orders FOR SELECT USIN
 
 -- Admin policies
 DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
-CREATE POLICY "Admins can view all profiles" ON public.profiles FOR SELECT USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
-);
+CREATE POLICY "Admins can view all profiles" ON public.profiles FOR SELECT USING (public.is_admin());
 
 DROP POLICY IF EXISTS "Admins can view all orders" ON public.orders;
-CREATE POLICY "Admins can view all orders" ON public.orders FOR SELECT USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
-);
+CREATE POLICY "Admins can view all orders" ON public.orders FOR SELECT USING (public.is_admin());
 
 -- 7. Automatic Profile Creation on Signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
