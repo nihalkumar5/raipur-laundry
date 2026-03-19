@@ -2,23 +2,23 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Phone, ShieldCheck, ChevronRight, Loader2 } from 'lucide-react';
+import { X, Mail, ShieldCheck, ChevronRight, Loader2 } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import { supabase, getProfile } from '@/lib/supabase';
 
 export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const [step, setStep] = useState<'phone' | 'otp'>('phone');
-  const [phone, setPhone] = useState('');
+  const [step, setStep] = useState<'email' | 'otp'>('email');
+  const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const { setUser, setProfile } = useAppStore();
 
   const handleSendOtp = async () => {
-    if (!phone) return;
+    if (!email) return;
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOtp({
-        phone: `+91${phone}`,
+        email,
       });
       if (error) throw error;
       setStep('otp');
@@ -36,9 +36,9 @@ export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClo
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.verifyOtp({
-        phone: `+91${phone}`,
+        email,
         token: otp,
-        type: 'sms',
+        type: 'email',
       });
 
       if (error) throw error;
@@ -53,11 +53,12 @@ export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClo
       console.error("Verify error:", err.message);
       // Fallback for demo
       if (otp === '123456') {
-        setUser({ id: 'mock-user-123', phone });
+        setUser({ id: 'mock-user-123', email });
         setProfile({
           id: 'mock-user-123',
           full_name: 'Nihal Kumar',
-          phone: phone,
+          phone: '9999999999',
+          email: email,
           subscription_status: 'Elite',
           quota_kg: 20,
           pickup_count_this_week: 1,
@@ -89,9 +90,9 @@ export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClo
 
         <div className="p-10 pt-16">
           <AnimatePresence mode="wait">
-            {step === 'phone' ? (
+            {step === 'email' ? (
               <motion.div 
-                key="phone"
+                key="email"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
@@ -105,19 +106,19 @@ export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClo
                 <div className="space-y-4">
                   <div className="relative">
                     <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400">
-                      <Phone size={20} />
+                      <Mail size={20} />
                     </div>
                     <input 
-                      type="tel" 
-                      placeholder="+91 99999 99999"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      type="email" 
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       className="w-full bg-white border border-slate-200 py-6 pl-16 pr-8 rounded-[1.5rem] font-bold text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#8BA88E]/20 transition-all"
                     />
                   </div>
                   <button 
                     onClick={handleSendOtp}
-                    disabled={phone.length < 10 || loading}
+                    disabled={!email.includes('@') || loading}
                     className="w-full bg-[#0F172A] text-white py-6 rounded-[1.5rem] font-black text-lg flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-50"
                   >
                     {loading ? <Loader2 className="animate-spin" /> : "Send Code"}
@@ -135,12 +136,11 @@ export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClo
               >
                 <div>
                   <h2 className="text-3xl font-serif font-black text-[#0F172A] mb-2">Verification.</h2>
-                  <p className="text-slate-500 font-medium">Code sent to <span className="text-[#0F172A] font-bold">{phone}</span></p>
+                  <p className="text-slate-500 font-medium">Code sent to <span className="text-[#0F172A] font-bold">{email}</span></p>
                 </div>
 
                 <div className="space-y-6">
                   <div className="flex gap-4">
-                    {/* Simplified OTP input for mock */}
                     <input 
                       type="text" 
                       maxLength={6}
@@ -161,10 +161,10 @@ export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClo
                       {!loading && <ShieldCheck size={20} />}
                     </button>
                     <button 
-                      onClick={() => setStep('phone')}
+                      onClick={() => setStep('email')}
                       className="text-xs font-bold text-slate-400 tracking-widest uppercase py-2"
                     >
-                      Change Number
+                      Change Email
                     </button>
                   </div>
                 </div>

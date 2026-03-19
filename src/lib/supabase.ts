@@ -9,6 +9,7 @@ export type Profile = {
   id: string;
   full_name: string | null;
   phone: string | null;
+  email: string | null;
   subscription_status: 'Elite' | 'Standard' | 'None';
   quota_kg: number;
   pickup_count_this_week: number;

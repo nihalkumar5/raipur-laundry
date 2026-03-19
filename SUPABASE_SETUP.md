@@ -13,8 +13,9 @@ Follow these steps to connect your SmartWash application to a real persistent da
 
 ## 3. Configure Authentication
 1. Go to **Authentication -> Providers**.
-2. Enable the **Phone** provider.
-3. (Optional) For testing without a real SMS provider, add a "Phone Test OTP" in the Auth settings.
+2. **Enable Email**.
+3. Ensure "Confirm Email" is OFF if you want to use OTP-style flow immediately, or ON for true magic links.
+4. (Optional) For testing, add a "Test OTP" for a specific email.
 
 ## 4. Environment Variables
 Create a `.env.local` file in `smartwash-web/` and add your credentials:
