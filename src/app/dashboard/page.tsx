@@ -15,7 +15,8 @@ import {
   ArrowRight,
   Info,
   Zap,
-  Shield
+  Shield,
+  Loader2
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
@@ -23,33 +24,23 @@ import BookingModal from "@/components/BookingModal";
 import { getProfile, getActiveOrders } from "@/lib/supabase";
 
 export default function Dashboard() {
-  const { user, profile, activeOrders, setProfile, setActiveOrders } = useAppStore();
+  const { user, profile, activeOrders, isLoading } = useAppStore();
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
+    if (!isLoading && !user) {
       router.push("/");
-      return;
     }
+  }, [user, isLoading, router]);
 
-    const fetchDashboardData = async () => {
-      try {
-        const [profileData, ordersData] = await Promise.all([
-          getProfile(user.id),
-          getActiveOrders(user.id)
-        ]);
-        if (profileData) setProfile(profileData as any);
-        if (ordersData) setActiveOrders(ordersData as any);
-      } catch (err) {
-        console.error("Dashboard fetch error:", err);
-      }
-    };
-
-    fetchDashboardData();
-  }, [user, router, setProfile, setActiveOrders]);
-
-  if (!user || !profile) return null;
+  if (isLoading || !user || !profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F1F5F9]">
+        <Loader2 className="animate-spin text-primary" size={40} />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#F1F5F9] min-h-screen">
