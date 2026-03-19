@@ -89,3 +89,19 @@ export const updateOrder = async (orderId: string, updates: Partial<Order>) => {
   if (error) throw error;
   return data;
 };
+
+export const getAdminStats = async () => {
+  const { data: orders, error: oErr } = await supabase.from('orders').select('final_price, status');
+  const { count: userCount, error: uErr } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+  
+  if (oErr || uErr) throw oErr || uErr;
+
+  const totalRevenue = orders?.reduce((sum, o) => sum + (o.final_price || 0), 0) || 0;
+  const pendingOrders = orders?.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').length || 0;
+
+  return {
+    totalRevenue,
+    totalUsers: userCount || 0,
+    pendingOrders
+  };
+};
