@@ -10,6 +10,7 @@ export type Profile = {
   full_name: string | null;
   phone: string | null;
   email: string | null;
+  role: 'user' | 'admin' | 'rider';
   subscription_status: 'Elite' | 'Standard' | 'None';
   quota_kg: number;
   pickup_count_this_week: number;

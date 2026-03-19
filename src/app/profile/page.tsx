@@ -118,6 +118,28 @@ export default function ProfilePage() {
             </div>
           </section>
 
+          {/* Admin Section (Conditional) */}
+          {profile.role === 'admin' && (
+            <section className="space-y-4">
+              <h3 className="text-xs font-black text-primary uppercase tracking-widest pl-1">Operational Control</h3>
+              <Link 
+                href="/admin"
+                className="w-full bg-slate-900 text-white p-5 rounded-[2rem] flex items-center justify-between shadow-xl shadow-slate-900/20 active:scale-95 transition-all"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="bg-white/10 text-primary h-10 w-10 rounded-xl flex items-center justify-center">
+                    <Shield size={20} />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-sm font-black text-white block">Admin Dashboard</span>
+                    <span className="text-[10px] text-slate-400 font-medium">Manage Orders & Operations</span>
+                  </div>
+                </div>
+                <ArrowRight size={18} className="text-primary" />
+              </Link>
+            </section>
+          )}
+
           {/* Logout */}
           <button 
             onClick={handleLogout}
