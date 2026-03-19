@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   Package, 
@@ -15,7 +16,6 @@ import {
   Search
 } from "lucide-react";
 
-// ... rest of imports
 import { useAppStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import { getActiveOrders } from "@/lib/supabase";
