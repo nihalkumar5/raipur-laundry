@@ -76,7 +76,10 @@ export default function AdminDashboard() {
                 className="pl-10 pr-4 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all dark:bg-slate-900 dark:border-slate-800"
               />
             </div>
-            <button className="h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center dark:bg-slate-900 dark:border-slate-800">
+            <button 
+              onClick={() => alert("Admin Settings & Filters coming soon!")}
+              className="h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center dark:bg-slate-900 dark:border-slate-800 hover:bg-slate-50 transition-all"
+            >
               <MoreVertical size={20} />
             </button>
           </div>
@@ -105,7 +108,12 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden dark:bg-slate-900 dark:border-slate-800">
           <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <h2 className="font-bold">Live Order Management</h2>
-            <button className="text-sm text-primary font-bold">Manage All</button>
+            <button 
+              onClick={() => alert("Manage All feature coming soon! Currently viewing all active orders.")}
+              className="text-sm text-primary font-bold hover:underline"
+            >
+              Manage All
+            </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
