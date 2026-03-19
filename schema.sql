@@ -119,7 +119,17 @@ CREATE POLICY "Users can view their own orders" ON public.orders FOR SELECT USIN
 -- (In practice, you'd check a role in the profiles table)
 -- CREATE POLICY "Admins can view all" ...
 
--- 7. Automated Weekly Reset (Concept)
--- In Supabase, you would use a 'pg_cron' extension or an Edge Function.
--- This function would be triggered every Monday to seed new 'weekly_quotas' 
--- rows for active subscriptions.
+-- 7. Automatic Profile Creation on Signup
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, full_name, role)
+  VALUES (new.id, new.email, new.raw_user_meta_data->>'full_name', 'user');
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
