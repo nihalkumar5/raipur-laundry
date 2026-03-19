@@ -49,7 +49,7 @@ export const getActiveOrders = async (userId: string) => {
     .from('orders')
     .select('*')
     .eq('user_id', userId)
-    .neq('status', 'Completed')
+    .neq('status', 'delivered')
     .order('created_at', { ascending: false });
 
   if (error) throw error;

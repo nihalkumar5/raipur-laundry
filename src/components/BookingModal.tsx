@@ -14,7 +14,8 @@ import {
   Navigation,
   CreditCard,
   Zap,
-  Shield
+  Shield,
+  ArrowRight
 } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import { createOrder } from '@/lib/supabase';

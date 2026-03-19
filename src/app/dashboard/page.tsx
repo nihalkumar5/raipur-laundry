@@ -1,6 +1,5 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { 
   Plus, 
   Package, 
@@ -127,12 +126,15 @@ export default function Dashboard() {
           {/* Active Order Banner (If any) */}
           {activeOrders.length > 0 && (
             <section className="animate-fade-in">
-              <div className="bg-white border-2 border-primary/10 rounded-3xl p-5 flex items-center justify-between shadow-sm">
+              <Link 
+                href="/orders"
+                className="bg-white border-2 border-primary/10 rounded-3xl p-5 flex items-center justify-between shadow-sm active:scale-[0.98] transition-all"
+              >
                 <div className="flex items-center gap-4">
                   <div className="bg-primary/5 h-12 w-12 rounded-2xl flex items-center justify-center text-primary">
                     <Clock size={24} />
                   </div>
-                  <div>
+                  <div className="text-left">
                     <span className="text-[10px] font-black text-primary uppercase tracking-widest">{activeOrders[0].status.replace('_', ' ')}</span>
                     <h4 className="font-bold text-slate-800">Arriving Tomorrow</h4>
                   </div>
@@ -140,7 +142,7 @@ export default function Dashboard() {
                 <div className="bg-slate-50 p-2 rounded-full text-slate-400 font-bold">
                   <ArrowRight size={20} />
                 </div>
-              </div>
+              </Link>
             </section>
           )}
 
@@ -180,31 +182,31 @@ export default function Dashboard() {
 
         {/* Bottom Nav */}
         <nav className="bottom-nav">
-          <button className="flex flex-col items-center gap-1 text-primary">
+          <Link href="/dashboard" className="flex flex-col items-center gap-1 text-primary">
             <Home size={22} className="stroke-[2.5px]" />
             <span className="text-[10px] font-black uppercase tracking-tighter">Home</span>
-          </button>
-          <button 
-            onClick={() => router.push('/orders')}
+          </Link>
+          <Link 
+            href="/orders"
             className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors"
           >
             <Package size={22} />
             <span className="text-[10px] font-black uppercase tracking-tighter">Orders</span>
-          </button>
-          <button 
-            onClick={() => router.push('/wallet')}
+          </Link>
+          <Link 
+            href="/wallet"
             className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors"
           >
             <Wallet size={22} />
             <span className="text-[10px] font-black uppercase tracking-tighter">Wallet</span>
-          </button>
-          <button 
-            onClick={() => router.push('/profile')}
+          </Link>
+          <Link 
+            href="/profile"
             className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors"
           >
             <User size={22} />
             <span className="text-[10px] font-black uppercase tracking-tighter">Profile</span>
-          </button>
+          </Link>
         </nav>
 
       </div>
