@@ -66,3 +66,25 @@ export const createOrder = async (orderData: Partial<Order>) => {
   if (error) throw error;
   return data;
 };
+
+export const getAllOrders = async () => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*, profiles(full_name, email)')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+};
+
+export const updateOrder = async (orderId: string, updates: Partial<Order>) => {
+  const { data, error } = await supabase
+    .from('orders')
+    .update(updates)
+    .eq('id', orderId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};

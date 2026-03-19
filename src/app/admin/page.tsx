@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Users, 
   ShoppingBag, 
@@ -10,21 +10,44 @@ import {
   ArrowUpRight, 
   ArrowDownRight,
   MoreVertical,
-  Search
+  Search,
+  Loader2,
+  CheckCircle2
 } from "lucide-react";
+import { getAllOrders, updateOrder } from "@/lib/supabase";
 
 export default function AdminDashboard() {
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const data = await getAllOrders();
+        setOrders(data);
+      } catch (err) {
+        console.error("Admin fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrders();
+  }, []);
+
+  const handleStatusUpdate = async (orderId: string, newStatus: string) => {
+    try {
+      await updateOrder(orderId, { status: newStatus as any });
+      setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    } catch (err) {
+      console.error("Status update error:", err);
+    }
+  };
+
   const stats = [
     { label: "Total Revenue", value: "₹45,200", change: "+12.5%", positive: true, icon: CreditCard },
     { label: "Active Subs", value: "124", change: "+4.2%", positive: true, icon: Users },
-    { label: "Pending Orders", value: "12", change: "-2", positive: false, icon: ShoppingBag },
+    { label: "Pending Orders", value: orders.filter(o => o.status !== 'delivered').length.toString(), change: "", positive: true, icon: ShoppingBag },
     { label: "Avg. Turnaround", value: "22h", change: "-1.5h", positive: true, icon: Clock },
-  ];
-
-  const recentOrders = [
-    { id: "#ORD-2045", customer: "Amara Singh", type: "Subscription", weight: "4.5kg", status: "Picked Up", price: "-" },
-    { id: "#ORD-2044", customer: "Rahul Mehta", type: "One-time", weight: "2.0kg", status: "Washing", price: "₹140" },
-    { id: "#ORD-2043", customer: "Sneha Kapur", type: "Subscription", weight: "6.1kg", status: "Scheduled", price: "-" },
   ];
 
   return (
@@ -89,23 +112,44 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {recentOrders.map((order, i) => (
-                  <tr key={i} className="hover:bg-slate-50/50 transition-colors dark:hover:bg-slate-800/50">
-                    <td className="px-6 py-4 font-medium text-sm">{order.id}</td>
-                    <td className="px-6 py-4 font-semibold text-sm">{order.customer}</td>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-20 text-center">
+                      <Loader2 className="mx-auto animate-spin text-slate-300" size={32} />
+                    </td>
+                  </tr>
+                ) : orders.map((order) => (
+                  <tr key={order.id} className="hover:bg-slate-50/50 transition-colors dark:hover:bg-slate-800/50">
+                    <td className="px-6 py-4 font-medium text-xs text-slate-400">...{order.id.slice(-6)}</td>
                     <td className="px-6 py-4">
-                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${order.type === 'Subscription' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
-                        {order.type}
+                      <div className="font-semibold text-sm">{order.profiles?.full_name || 'Guest'}</div>
+                      <div className="text-[10px] text-slate-400">{order.profiles?.email}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400`}>
+                        {order.service}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium">{order.weight}</td>
+                    <td className="px-6 py-4 text-sm font-medium">{order.weight_kg || '-'} kg</td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-orange-400 animate-pulse" />
-                        <span className="text-sm">{order.status}</span>
-                      </div>
+                      <select 
+                        value={order.status}
+                        onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
+                        className="text-sm bg-white border border-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary/10"
+                      >
+                        <option value="scheduled">Scheduled</option>
+                        <option value="driver_assigned">Driver Assigned</option>
+                        <option value="picked_up">Picked Up</option>
+                        <option value="weighed">Weighed</option>
+                        <option value="washing">Washing</option>
+                        <option value="out_for_delivery">Out for Delivery</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
                     </td>
-                    <td className="px-6 py-4 text-sm font-bold text-primary cursor-pointer hover:underline">Edit</td>
+                    <td className="px-6 py-4 text-sm font-bold text-primary cursor-pointer hover:underline">
+                      {order.status === 'delivered' ? <CheckCircle2 className="text-emerald-500" size={18} /> : 'Manage'}
+                    </td>
                   </tr>
                 ))}
               </tbody>
