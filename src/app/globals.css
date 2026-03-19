@@ -1,15 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F8F9FB;
+  --background: #FFFFFF;
   --foreground: #0F172A;
-  --primary: #3B82F6;
+  --primary: #2563EB; /* DhobiGuru Blue */
   --primary-foreground: #FFFFFF;
-  --accent: #E0E7FF;
-  --glass: rgba(248, 249, 251, 0.7);
-  --glass-border: rgba(15, 23, 42, 0.05);
-  --card-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08);
-  --apple-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --accent: #22C55E; /* DhobiGuru Green */
+  --accent-foreground: #FFFFFF;
+  --card: #F8FAFC;
+  --card-border: #E2E8F0;
+  --glass: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(37, 99, 235, 0.1);
+  --card-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.1), 0 8px 10px -6px rgba(37, 99, 235, 0.1);
 }
 
 @theme inline {
@@ -17,38 +19,22 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-accent: var(--accent);
-  --font-sans: 'Inter', sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --shadow-card: var(--card-shadow);
-  --shadow-apple: var(--apple-shadow);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #020617;
-    --foreground: #F8FAF9;
-    --primary: #3B82F6;
-    --glass: rgba(2, 6, 23, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.05);
-  }
 }
 
 body {
-  background-color: var(--background);
+  background-color: #F1F5F9; /* Light grey background for the 'container' feel */
   color: var(--foreground);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, .font-serif {
-  font-family: 'Playfair Display', serif;
-}
-
-.glass {
-  background: var(--glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--glass-border);
+h1, h2, h3, h4 {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  letter-spacing: -0.025em;
 }
 
 .app-shell {
@@ -58,9 +44,16 @@ h1, h2, h3, h4, .font-serif {
   min-height: 100dvh;
   background: var(--background);
   position: relative;
-  box-shadow: 0 0 100px rgba(15, 23, 42, 0.08);
   display: flex;
   flex-direction: column;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.05);
+}
+
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .bottom-nav {
@@ -70,51 +63,68 @@ h1, h2, h3, h4, .font-serif {
   transform: translateX(-50%);
   width: 100%;
   max-width: 480px;
-  height: 84px;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  height: 70px;
+  background: #FFFFFF;
   display: flex !important;
   flex-direction: row !important;
   justify-content: space-around;
   align-items: center;
-  padding-bottom: env(safe-area-inset-bottom, 20px);
+  padding-bottom: env(safe-area-inset-bottom, 0);
   z-index: 100;
-  border-top: 1px solid var(--glass-border);
+  border-top: 1px solid #E2E8F0;
+  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-.premium-card {
-  border-radius: 2rem;
-  box-shadow: var(--card-shadow);
-  transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.3s ease;
-  border: 1px solid rgba(15, 23, 42, 0.03);
+.big-btn {
+  background: var(--primary);
+  color: white;
+  padding: 1.25rem;
+  border-radius: 1.25rem;
+  font-weight: 800;
+  font-size: 1.25rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
 }
 
-.premium-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 30px 60px -12px rgba(15, 23, 42, 0.12);
+.big-btn:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
-.dark .premium-card {
-  background: #0F172A;
-  border: 1px solid rgba(255, 255, 255, 0.03);
-}
-.membership-card {
-  border-radius: 2rem;
-  box-shadow: var(--card-shadow);
-  transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.3s ease;
-}
-
-.membership-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 30px 60px -12px rgba(15, 23, 42, 0.12);
+.service-card {
+  background: white;
+  border: 2px solid #F1F5F9;
+  border-radius: 1.5rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+.service-card:active {
+  border-color: var(--primary);
+  background: #EFF6FF;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.8s cubic-bezier(0.2, 0, 0, 1) forwards;
+.offer-banner {
+  background: linear-gradient(135deg, #2563EB, #1D4ED8);
+  color: white;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
 }

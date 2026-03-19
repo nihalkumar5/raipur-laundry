@@ -2,55 +2,70 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Clock, MapPin, Package, ChevronRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { 
+  X, 
+  MapPin, 
+  Package, 
+  ChevronRight, 
+  CheckCircle2, 
+  Clock, 
+  Plus, 
+  Minus,
+  Navigation,
+  CreditCard,
+  Zap,
+  Shield
+} from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import { createOrder } from '@/lib/supabase';
 
-type Step = 'service' | 'schedule' | 'confirm' | 'success';
+type Step = 'service' | 'address' | 'details' | 'success';
+
+const SERVICES = [
+  { id: 'wash_fold', name: 'Wash & Fold', price: 70, unit: 'kg', desc: 'Washed, dried & folded neatly.', icon: Package, color: 'text-blue-600', bg: 'bg-blue-50' },
+  { id: 'wash_iron', name: 'Wash & Iron', price: 90, unit: 'kg', desc: 'Steam ironed for a crisp look.', icon: Zap, color: 'text-green-600', bg: 'bg-green-50' },
+  { id: 'dry_clean', name: 'Dry Clean', price: 150, unit: 'pc', desc: 'Professional care for delicate wear.', icon: Shield, color: 'text-purple-600', bg: 'bg-purple-50' },
+];
 
 export default function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [step, setStep] = useState<Step>('service');
   const [loading, setLoading] = useState(false);
   const { profile, setProfile, addOrder } = useAppStore();
-  const [bookingData, setBookingData] = useState({
-    service: 'Subscription Wash',
-    date: '',
-    slot: '',
-    address: 'H-402, Green Valley Apartments, Raipur'
+  
+  const [booking, setBooking] = useState({
+    serviceId: 'wash_fold',
+    address: 'Home (Raipur Civil Lines)',
+    date: 'Tomorrow',
+    slot: '10 AM - 12 PM',
+    weight: 1
   });
 
-  const slots = ["09:00 AM - 11:00 AM", "01:00 PM - 03:00 PM", "05:00 PM - 07:00 PM"];
-  const dates = ["Tomorrow", "21 Mar", "22 Mar"];
+  const slots = ["10 AM - 12 PM", "12 PM - 2 PM", "4 PM - 6 PM"];
 
   const handleNext = async () => {
-    if (step === 'service') setStep('schedule');
-    else if (step === 'schedule') setStep('confirm');
-    else if (step === 'confirm') {
+    if (step === 'service') setStep('address');
+    else if (step === 'address') setStep('details');
+    else if (step === 'details') {
       if (!profile) return;
       setLoading(true);
       
       try {
+        const selectedService = SERVICES.find(s => s.id === booking.serviceId);
         const newOrder = await createOrder({
           user_id: profile.id,
           status: 'scheduled',
-          service: bookingData.service.toLowerCase().includes('iron') ? 'one_time_ironing' : (bookingData.service.toLowerCase().includes('one-time') ? 'one_time_standard' : 'subscription_wash'),
-          pickup_time: new Date().toISOString(), // In reality, parse from bookingData.date/slot
-          notes: bookingData.service,
-          address_id: '864e8371-f763-44f2-9844-38686e00346b' // Mocked address ID for now
+          service: selectedService?.name || 'Standard Wash',
+          pickup_time: new Date().toISOString(), 
+          notes: `${booking.date} @ ${booking.slot}`,
+          address_id: '864e8371-f763-44f2-9844-38686e00346b'
         });
 
-        // Update local state
-        setProfile({
-          ...profile,
-          pickup_count_this_week: profile.pickup_count_this_week + 1
-        });
-        
         addOrder({
           id: newOrder.id,
           user_id: profile.id,
           status: 'scheduled',
-          weight_kg: null,
-          service: bookingData.service,
+          weight_kg: booking.weight,
+          service: selectedService?.name || 'Standard Wash',
           pickup_time: new Date().toISOString(),
           address_id: '864e8371-f763-44f2-9844-38686e00346b',
           created_at: new Date().toISOString()
@@ -59,8 +74,7 @@ export default function BookingModal({ isOpen, onClose }: { isOpen: boolean; onC
         setStep('success');
       } catch (err) {
         console.error("Booking error:", err);
-        // Fallback for demo
-        setStep('success');
+        setStep('success'); // Fallback for demo
       } finally {
         setLoading(false);
       }
@@ -69,7 +83,7 @@ export default function BookingModal({ isOpen, onClose }: { isOpen: boolean; onC
 
   if (!isOpen) return null;
 
-  const canBook = (profile?.pickup_count_this_week ?? 0) < 2;
+  const currentService = SERVICES.find(s => s.id === booking.serviceId) || SERVICES[0];
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-[#0F172A]/40 backdrop-blur-sm px-4">
@@ -77,182 +91,192 @@ export default function BookingModal({ isOpen, onClose }: { isOpen: boolean; onC
         initial={{ y: "100%" }}
         animate={{ y: 0 }}
         exit={{ y: "100%" }}
-        className="w-full max-w-xl bg-[#F7F5F2] rounded-t-[2.5rem] sm:rounded-[2.5rem] overflow-hidden relative shadow-2xl"
+        className="w-full max-w-md bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] overflow-hidden relative shadow-2xl flex flex-col max-h-[90vh]"
       >
-        <button 
-          onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full bg-white/50 text-[#0F172A] z-50"
-        >
-          <X size={20} />
-        </button>
+        {/* Header */}
+        <div className="px-8 pt-8 pb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className={`h-2 w-8 rounded-full ${step === 'service' ? 'bg-primary' : 'bg-slate-100'}`} />
+            <div className={`h-2 w-8 rounded-full ${step === 'address' ? 'bg-primary' : 'bg-slate-100'}`} />
+            <div className={`h-2 w-8 rounded-full ${step === 'details' ? 'bg-primary' : 'bg-slate-100'}`} />
+          </div>
+          <button onClick={onClose} className="p-2 bg-slate-100 rounded-full text-slate-400">
+            <X size={20} />
+          </button>
+        </div>
 
-        <div className="p-8 sm:p-12">
+        <div className="p-8 flex-1 overflow-y-auto">
           <AnimatePresence mode="wait">
             {step === 'service' && (
-              <motion.div key="service" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-8">
+              <motion.div key="1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                 <div>
-                  <h2 className="text-3xl font-serif font-black text-[#0F172A] mb-2">The Ritual</h2>
-                  <p className="text-slate-500 font-medium italic text-sm">Select your care preference.</p>
+                  <h2 className="text-2xl font-black text-slate-800">Choose Service</h2>
+                  <p className="text-slate-400 text-sm font-medium italic">What are we washing today?</p>
                 </div>
 
-                {!canBook && (
-                  <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-start gap-4">
-                    <AlertCircle className="text-amber-600 shrink-0" size={20} />
-                    <p className="text-xs font-bold text-amber-800 uppercase tracking-wide leading-relaxed">
-                      Weekly Limit Reached. You have already used your 2 complimentary pickups for this week.
-                    </p>
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  {['Subscription Wash', 'One-time Wash (₹70/kg)', 'One-time + Iron (₹90/kg)'].map((s) => (
+                <div className="space-y-3">
+                  {SERVICES.map((s) => (
                     <button 
-                      key={s}
-                      disabled={!canBook && s === 'Subscription Wash'}
-                      onClick={() => setBookingData({ ...bookingData, service: s })}
-                      className={`w-full p-6 rounded-[1.5rem] text-left border-2 transition-all flex items-center justify-between ${
-                        bookingData.service === s 
-                          ? 'border-[#8BA88E] bg-[#8BA88E]/5' 
-                          : 'border-slate-100 bg-white'
-                      } ${(!canBook && s === 'Subscription Wash') ? 'opacity-40 cursor-not-allowed' : ''}`}
+                      key={s.id}
+                      onClick={() => setBooking({ ...booking, serviceId: s.id })}
+                      className={`w-full p-4 rounded-3xl text-left border-2 transition-all flex items-center gap-4 ${
+                        booking.serviceId === s.id ? 'border-primary bg-primary/5' : 'border-slate-100 bg-white'
+                      }`}
                     >
-                      <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-xl ${bookingData.service === s ? 'bg-[#8BA88E] text-white' : 'bg-slate-50 text-slate-400'}`}>
-                          <Package size={20} />
-                        </div>
-                        <span className="font-bold text-[#0F172A]">{s}</span>
+                      <div className={`p-3 rounded-2xl ${s.bg} ${s.color}`}>
+                        <s.icon size={24} />
                       </div>
-                      {bookingData.service === s && <CheckCircle2 size={24} className="text-[#8BA88E]" />}
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-black text-slate-800">{s.name}</span>
+                          <span className="text-sm font-black text-primary">₹{s.price}/{s.unit}</span>
+                        </div>
+                        <p className="text-[11px] font-medium text-slate-400">{s.desc}</p>
+                      </div>
                     </button>
                   ))}
                 </div>
-
-                <button 
-                  onClick={handleNext}
-                  className="w-full bg-[#0F172A] text-white py-6 rounded-2xl font-black text-lg flex items-center justify-center gap-3 shadow-xl transition-all active:scale-95"
-                >
-                  Continué <ChevronRight size={20} />
-                </button>
               </motion.div>
             )}
 
-            {step === 'schedule' && (
-              <motion.div key="schedule" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-8">
+            {step === 'address' && (
+              <motion.div key="2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                 <div>
-                  <h2 className="text-3xl font-serif font-black text-[#0F172A] mb-2">Timing.</h2>
-                  <p className="text-slate-500 font-medium">When should we arrive?</p>
+                  <h2 className="text-2xl font-black text-slate-800">Address & Slot</h2>
+                  <p className="text-slate-400 text-sm font-medium italic">Nearly there, where & when?</p>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
-                    {dates.map(d => (
-                      <button 
-                        key={d}
-                        onClick={() => setBookingData({...bookingData, date: d})}
-                        className={`px-8 py-4 rounded-2xl font-bold whitespace-nowrap transition-all ${
-                          bookingData.date === d ? 'bg-[#0F172A] text-white' : 'bg-white text-slate-400 border border-slate-100'
-                        }`}
-                      >
-                        {d}
-                      </button>
-                    ))}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <button 
+                      onClick={() => setBooking({...booking, address: 'Home (Raipur Civil Lines)'})}
+                      className={`p-4 rounded-2xl border-2 text-left transition-all ${booking.address.includes('Home') ? 'border-primary bg-primary/5' : 'border-slate-100'}`}
+                    >
+                      <MapPin size={18} className="text-primary mb-2" />
+                      <span className="block text-sm font-black text-slate-800">Home</span>
+                      <span className="text-[10px] text-slate-400 font-medium truncate block">Civil Lines, Raipur</span>
+                    </button>
+                    <button 
+                      onClick={() => setBooking({...booking, address: 'Work (Raipur Tower)'})}
+                      className={`p-4 rounded-2xl border-2 text-left transition-all ${booking.address.includes('Work') ? 'border-primary bg-primary/5' : 'border-slate-100'}`}
+                    >
+                      <Navigation size={18} className="text-slate-400 mb-2" />
+                      <span className="block text-sm font-black text-slate-800">Work</span>
+                      <span className="text-[10px] text-slate-400 font-medium truncate block">Raipur Tower, Ph 2</span>
+                    </button>
                   </div>
 
                   <div className="space-y-3">
-                    {slots.map(s => (
-                      <button 
-                        key={s}
-                        onClick={() => setBookingData({...bookingData, slot: s})}
-                        className={`w-full p-6 rounded-2xl text-left border-2 transition-all flex items-center gap-4 ${
-                          bookingData.slot === s ? 'border-[#8BA88E] bg-[#8BA88E]/5' : 'border-slate-100 bg-white'
-                        }`}
-                      >
-                        <Clock size={18} className={bookingData.slot === s ? 'text-[#8BA88E]' : 'text-slate-300'} />
-                        <span className="font-bold text-[#0F172A]">{s}</span>
-                      </button>
-                    ))}
+                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Pickup Time</span>
+                    <div className="flex gap-2">
+                       {['Today', 'Tomorrow'].map(d => (
+                         <button 
+                          key={d}
+                          onClick={() => setBooking({...booking, date: d})}
+                          className={`flex-1 py-3 rounded-xl font-bold text-sm ${booking.date === d ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-400'}`}
+                         >
+                           {d}
+                         </button>
+                       ))}
+                    </div>
+                    <div className="space-y-2">
+                      {slots.map(s => (
+                        <button 
+                          key={s}
+                          onClick={() => setBooking({...booking, slot: s})}
+                          className={`w-full p-4 rounded-2xl border-2 text-left flex items-center gap-3 transition-all ${booking.slot === s ? 'border-primary bg-primary/5' : 'border-slate-100'}`}
+                        >
+                          <Clock size={16} className={booking.slot === s ? 'text-primary' : 'text-slate-300'} />
+                          <span className="text-sm font-bold text-slate-800">{s}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <button onClick={() => setStep('service')} className="flex-1 bg-white border border-slate-200 text-[#0F172A] py-6 rounded-2xl font-bold">Back</button>
-                  <button 
-                    onClick={handleNext}
-                    disabled={!bookingData.date || !bookingData.slot}
-                    className="flex-[2] bg-[#0F172A] text-white py-6 rounded-2xl font-black text-lg flex items-center justify-center gap-3 disabled:opacity-50"
-                  >
-                    Confirm <ChevronRight size={20} />
-                  </button>
                 </div>
               </motion.div>
             )}
 
-            {step === 'confirm' && (
-              <motion.div key="confirm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-8">
+            {step === 'details' && (
+              <motion.div key="3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                 <div>
-                  <h2 className="text-3xl font-serif font-black text-[#0F172A] mb-2">Review.</h2>
-                  <p className="text-slate-500 font-medium italic">Everything in its place.</p>
+                  <h2 className="text-2xl font-black text-slate-800">Final Summary</h2>
+                  <p className="text-slate-400 text-sm font-medium italic">3/3 clicks complete.</p>
                 </div>
 
-                <div className="bg-white rounded-3xl p-8 border border-slate-100 space-y-6">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-[#F7F5F2] rounded-xl text-[#0F172A]"><Calendar size={20} /></div>
+                <div className="bg-slate-50 p-6 rounded-[2rem] space-y-4">
+                  <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-100">
                     <div>
-                      <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-1">Schedule</span>
-                      <p className="font-bold text-[#0F172A]">{bookingData.date} • {bookingData.slot}</p>
+                      <span className="text-[10px] font-black text-slate-400 uppercase block mb-0.5">Estimated Weight</span>
+                      <span className="text-lg font-black text-slate-800">{booking.weight} KG</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button onClick={() => setBooking({...booking, weight: Math.max(1, booking.weight - 1)})} className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><Minus size={20} /></button>
+                      <button onClick={() => setBooking({...booking, weight: booking.weight + 1})} className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><Plus size={20} /></button>
                     </div>
                   </div>
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-[#F7F5F2] rounded-xl text-[#0F172A]"><MapPin size={20} /></div>
-                    <div>
-                      <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-1">Pick up At</span>
-                      <p className="font-bold text-[#0F172A]">{bookingData.address}</p>
+
+                  <div className="space-y-3 pt-2">
+                    <div className="flex justify-between text-sm font-bold">
+                      <span className="text-slate-400">{currentService.name} ({booking.weight} {currentService.unit})</span>
+                      <span className="text-slate-800">₹{booking.weight * currentService.price}</span>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-[#F7F5F2] rounded-xl text-[#0F172A]"><Package size={20} /></div>
-                    <div>
-                      <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-1">Service</span>
-                      <p className="font-bold text-[#0F172A]">{bookingData.service}</p>
+                    <div className="flex justify-between text-sm font-bold">
+                      <span className="text-slate-400">Pickup & Delivery</span>
+                      <span className="text-green-600 uppercase">Free</span>
+                    </div>
+                    <div className="pt-3 border-t border-slate-200 flex justify-between items-baseline">
+                      <span className="text-lg font-black text-slate-800">Total</span>
+                      <span className="text-2xl font-black text-primary italic">₹{booking.weight * currentService.price}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex gap-4">
-                  <button onClick={() => setStep('schedule')} className="flex-1 bg-white border border-slate-200 text-[#0F172A] py-6 rounded-2xl font-bold">Edit</button>
-                  <button 
-                    onClick={handleNext}
-                    className="flex-[2] bg-[#8BA88E] text-white py-6 rounded-2xl font-black text-lg flex items-center justify-center gap-3 shadow-xl shadow-[#8BA88E]/20"
-                  >
-                    Set the Ritual <CheckCircle2 size={20} />
-                  </button>
+                <div className="bg-blue-50/50 p-4 rounded-2xl flex items-center gap-3">
+                  <CreditCard size={18} className="text-primary" />
+                  <span className="text-xs font-bold text-slate-600">Payment on Delivery (Cash/UPI)</span>
                 </div>
               </motion.div>
             )}
 
             {step === 'success' && (
-              <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-10 space-y-8">
-                <div className="h-24 w-24 bg-[#8BA88E] rounded-full flex items-center justify-center text-white mx-auto shadow-2xl shadow-[#8BA88E]/30">
+              <motion.div key="4" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-10 space-y-6">
+                <div className="h-24 w-24 bg-accent rounded-full flex items-center justify-center text-white mx-auto shadow-2xl shadow-green-500/20">
                   <CheckCircle2 size={48} />
                 </div>
                 <div>
-                  <h2 className="text-3xl font-serif font-black text-[#0F172A] mb-2">Excellent.</h2>
-                  <p className="text-slate-500 font-medium">Your concierge will arrive as scheduled.</p>
+                  <h2 className="text-3xl font-black text-slate-800">Bole Toh Jhakaas! 🔥</h2>
+                  <p className="text-slate-400 font-medium">Order Confirmed. Driver arriving {booking.date.toLowerCase()} morning.</p>
                 </div>
                 <button 
                   onClick={onClose}
-                  className="w-full bg-[#0F172A] text-white py-6 rounded-2xl font-black text-lg transition-all active:scale-95"
+                  className="w-full bg-slate-800 text-white py-5 rounded-2xl font-black text-lg transition-all active:scale-95"
                 >
-                  Dismiss
+                  Back to Home
                 </button>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        <div className="bg-[#0F172A] py-4 px-10 flex items-center justify-center">
-          <p className="text-[9px] font-black text-[#8BA88E] tracking-[0.2em] uppercase">SmartWash Signature Service</p>
-        </div>
+        {/* Action Button */}
+        {step !== 'success' && (
+          <div className="p-8 pt-0">
+            <button 
+              onClick={handleNext}
+              disabled={loading}
+              className="big-btn"
+            >
+              {loading ? (
+                <div className="h-6 w-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  {step === 'details' ? 'Confirm Booking' : 'Continue'}
+                  <ArrowRight size={20} />
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </motion.div>
     </div>
   );

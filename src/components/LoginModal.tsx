@@ -1,13 +1,16 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, Lock, ShieldCheck, ChevronRight, Loader2, UserPlus, LogIn } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import { supabase, getProfile } from '@/lib/supabase';
 
 export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const router = useRouter();
   const [isSignUp, setIsSignUp] = useState(false);
+  // ... rest of state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -33,7 +36,7 @@ export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClo
         if (error) throw error;
         if (data.user) {
           setUser(data.user);
-          setProfile({
+          const mockProfile = {
             id: data.user.id,
             full_name: fullName,
             email,
@@ -41,8 +44,10 @@ export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClo
             subscription_status: 'None',
             quota_kg: 0,
             pickup_count_this_week: 0
-          });
+          };
+          setProfile(mockProfile as any);
           onClose();
+          router.push('/dashboard');
         }
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -52,9 +57,23 @@ export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClo
         if (error) throw error;
         if (data.user) {
           setUser(data.user);
-          const profileData = await getProfile(data.user.id);
-          setProfile(profileData as any);
+          try {
+            const profileData = await getProfile(data.user.id);
+            setProfile(profileData as any);
+          } catch (pErr) {
+            console.warn("Profile fetch failed, using default:", pErr);
+            setProfile({
+              id: data.user.id,
+              full_name: 'Valued Member',
+              email,
+              phone: '',
+              subscription_status: 'None',
+              quota_kg: 0,
+              pickup_count_this_week: 0
+            } as any);
+          }
           onClose();
+          router.push('/dashboard');
         }
       }
     } catch (err: any) {
