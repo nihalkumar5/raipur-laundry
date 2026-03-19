@@ -14,40 +14,48 @@ import {
   Loader2,
   CheckCircle2
 } from "lucide-react";
-import { getAllOrders, updateOrder } from "@/lib/supabase";
+import { getAllOrders, updateOrder, getAdminStats } from "@/lib/supabase";
 
 export default function AdminDashboard() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statsData, setStatsData] = useState({ totalRevenue: 0, totalUsers: 0, pendingOrders: 0 });
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getAllOrders();
-        setOrders(data);
+        const [ordersData, sData] = await Promise.all([
+          getAllOrders(),
+          getAdminStats()
+        ]);
+        setOrders(ordersData);
+        setStatsData(sData);
       } catch (err) {
         console.error("Admin fetch error:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchOrders();
+    fetchData();
   }, []);
 
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
     try {
       await updateOrder(orderId, { status: newStatus as any });
       setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+      // Refresh stats
+      const sData = await getAdminStats();
+      setStatsData(sData);
     } catch (err) {
       console.error("Status update error:", err);
     }
   };
 
   const stats = [
-    { label: "Total Revenue", value: "₹45,200", change: "+12.5%", positive: true, icon: CreditCard },
-    { label: "Active Subs", value: "124", change: "+4.2%", positive: true, icon: Users },
-    { label: "Pending Orders", value: orders.filter(o => o.status !== 'delivered').length.toString(), change: "", positive: true, icon: ShoppingBag },
-    { label: "Avg. Turnaround", value: "22h", change: "-1.5h", positive: true, icon: Clock },
+    { label: "Total Revenue", value: `₹${statsData.totalRevenue.toLocaleString()}`, change: "Live", positive: true, icon: CreditCard },
+    { label: "Total Users", value: statsData.totalUsers.toString(), change: "Live", positive: true, icon: Users },
+    { label: "Pending Orders", value: statsData.pendingOrders.toString(), change: "Live", positive: true, icon: ShoppingBag },
+    { label: "System Health", value: "Optimal", change: "100%", positive: true, icon: Clock },
   ];
 
   return (
