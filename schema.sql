@@ -11,7 +11,7 @@ DO $$ BEGIN
   END IF;
 END $$;
 
-CREATE TABLE public.profiles (
+CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT UNIQUE,
   phone TEXT,
@@ -23,7 +23,7 @@ CREATE TABLE public.profiles (
 );
 
 -- 2. Subscriptions table
-CREATE TABLE public.subscriptions (
+CREATE TABLE IF NOT EXISTS public.subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   plan_name TEXT DEFAULT 'Standard Subscription (₹999)',
@@ -37,7 +37,7 @@ CREATE TABLE public.subscriptions (
 );
 
 -- 3. Weekly Quotas (to enforce 2-pickup/week)
-CREATE TABLE public.weekly_quotas (
+CREATE TABLE IF NOT EXISTS public.weekly_quotas (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   subscription_id UUID NOT NULL REFERENCES public.subscriptions(id) ON DELETE CASCADE,
   week_start_date DATE NOT NULL, -- e.g. the Monday of the week
@@ -46,7 +46,7 @@ CREATE TABLE public.weekly_quotas (
 );
 
 -- 4. Addresses
-CREATE TABLE public.addresses (
+CREATE TABLE IF NOT EXISTS public.addresses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id),
   label TEXT, -- e.g. 'Home', 'Work'
@@ -83,7 +83,7 @@ DO $$ BEGIN
   END IF;
 END $$;
 
-CREATE TABLE public.orders (
+CREATE TABLE IF NOT EXISTS public.orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id),
   subscription_id UUID REFERENCES public.subscriptions(id), 
