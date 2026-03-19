@@ -14,8 +14,8 @@ Follow these steps to connect your SmartWash application to a real persistent da
 ## 3. Configure Authentication
 1. Go to **Authentication -> Providers**.
 2. **Enable Email**.
-3. Ensure "Confirm Email" is OFF if you want to use OTP-style flow immediately, or ON for true magic links.
-4. (Optional) For testing, add a "Test OTP" for a specific email.
+3. **Enable "Allow signup"**.
+4. (Recommended) Disable "Confirm Email" for immediate access during development.
 
 ## 4. Environment Variables
 Create a `.env.local` file in `smartwash-web/` and add your credentials:
