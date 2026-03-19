@@ -108,8 +108,11 @@ ALTER TABLE public.addresses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 
 -- Simple select policies for users
+DROP POLICY IF EXISTS "Users can view their own profiles" ON public.profiles;
 CREATE POLICY "Users can view their own profiles" ON public.profiles FOR SELECT USING (auth.uid() = id);
+DROP POLICY IF EXISTS "Users can view their own subscriptions" ON public.subscriptions;
 CREATE POLICY "Users can view their own subscriptions" ON public.subscriptions FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can view their own orders" ON public.orders;
 CREATE POLICY "Users can view their own orders" ON public.orders FOR SELECT USING (auth.uid() = user_id);
 
 -- Admin policies
