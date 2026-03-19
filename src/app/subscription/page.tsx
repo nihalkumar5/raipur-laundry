@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function SubscriptionPage() {
   const router = useRouter();
@@ -43,9 +44,9 @@ export default function SubscriptionPage() {
         
         {/* Header */}
         <header className="px-6 pt-10 pb-4 bg-white sticky top-0 z-20 flex items-center gap-4 border-b border-slate-100">
-          <button onClick={() => router.push('/profile')} className="p-2 bg-slate-50 rounded-full text-slate-400">
+          <Link href="/profile" className="p-2 bg-slate-50 rounded-full text-slate-400">
             <ArrowLeft size={20} />
-          </button>
+          </Link>
           <h1 className="text-xl font-black text-slate-800">DhobiGuru Plans</h1>
         </header>
 
@@ -116,6 +117,24 @@ export default function SubscriptionPage() {
         </div>
 
         {/* Navigation is Profile-centric */}
+        <nav className="bottom-nav">
+          <Link href="/dashboard" className="flex flex-col items-center gap-1 text-slate-400">
+            <Home size={22} />
+            <span className="text-[10px] font-black uppercase tracking-tighter">Home</span>
+          </Link>
+          <Link href="/orders" className="flex flex-col items-center gap-1 text-slate-400">
+            <Package size={22} />
+            <span className="text-[10px] font-black uppercase tracking-tighter">Orders</span>
+          </Link>
+          <Link href="/wallet" className="flex flex-col items-center gap-1 text-slate-400">
+            <Wallet size={22} />
+            <span className="text-[10px] font-black uppercase tracking-tighter">Wallet</span>
+          </Link>
+          <Link href="/profile" className="flex flex-col items-center gap-1 text-primary">
+            <User size={22} className="stroke-[2.5px]" />
+            <span className="text-[10px] font-black uppercase tracking-tighter italic">Profile</span>
+          </Link>
+        </nav>
       </div>
     </div>
   );

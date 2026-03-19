@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function WalletPage() {
   const { profile } = useAppStore();
@@ -105,22 +106,22 @@ export default function WalletPage() {
 
         {/* Bottom Nav */}
         <nav className="bottom-nav">
-          <button onClick={() => router.push('/dashboard')} className="flex flex-col items-center gap-1 text-slate-400">
+          <Link href="/dashboard" className="flex flex-col items-center gap-1 text-slate-400">
             <Home size={22} />
             <span className="text-[10px] font-black uppercase tracking-tighter">Home</span>
-          </button>
-          <button onClick={() => router.push('/orders')} className="flex flex-col items-center gap-1 text-slate-400">
+          </Link>
+          <Link href="/orders" className="flex flex-col items-center gap-1 text-slate-400">
             <Package size={22} />
             <span className="text-[10px] font-black uppercase tracking-tighter">Orders</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 text-primary">
+          </Link>
+          <Link href="/wallet" className="flex flex-col items-center gap-1 text-primary">
             <Wallet size={22} className="stroke-[2.5px]" />
             <span className="text-[10px] font-black uppercase tracking-tighter italic">Wallet</span>
-          </button>
-          <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-slate-400">
+          </Link>
+          <Link href="/profile" className="flex flex-col items-center gap-1 text-slate-400">
             <User size={22} />
             <span className="text-[10px] font-black uppercase tracking-tighter">Profile</span>
-          </button>
+          </Link>
         </nav>
 
       </div>

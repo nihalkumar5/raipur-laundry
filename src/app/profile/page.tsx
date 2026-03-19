@@ -16,8 +16,10 @@ import {
   LogOut,
   Sparkles,
   Settings,
-  Bell
+  Bell,
+  Info
 } from "lucide-react";
+import Link from "next/link";
 import { useAppStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -133,22 +135,22 @@ export default function ProfilePage() {
 
         {/* Bottom Nav */}
         <nav className="bottom-nav">
-          <button onClick={() => router.push('/dashboard')} className="flex flex-col items-center gap-1 text-slate-400">
+          <Link href="/dashboard" className="flex flex-col items-center gap-1 text-slate-400">
             <Home size={22} />
             <span className="text-[10px] font-black uppercase tracking-tighter">Home</span>
-          </button>
-          <button onClick={() => router.push('/orders')} className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
+          </Link>
+          <Link href="/orders" className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
             <Package size={22} />
             <span className="text-[10px] font-black uppercase tracking-tighter">Orders</span>
-          </button>
-          <button onClick={() => router.push('/wallet')} className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
+          </Link>
+          <Link href="/wallet" className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
             <Wallet size={22} />
             <span className="text-[10px] font-black uppercase tracking-tighter">Wallet</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 text-primary">
+          </Link>
+          <Link href="/profile" className="flex flex-col items-center gap-1 text-primary">
             <User size={22} className="stroke-[2.5px]" />
             <span className="text-[10px] font-black uppercase tracking-tighter italic">Profile</span>
-          </button>
+          </Link>
         </nav>
 
       </div>

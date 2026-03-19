@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { 
   Package, 
   Clock, 
@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   Search
 } from "lucide-react";
+
+// ... rest of imports
 import { useAppStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import { getActiveOrders } from "@/lib/supabase";
@@ -49,9 +51,9 @@ export default function OrdersPage() {
         
         {/* Header */}
         <header className="px-6 pt-10 pb-4 bg-white sticky top-0 z-20 flex items-center gap-4 border-b border-slate-100">
-          <button onClick={() => router.push('/dashboard')} className="p-2 bg-slate-50 rounded-full text-slate-400">
+          <Link href="/dashboard" className="p-2 bg-slate-50 rounded-full text-slate-400">
             <ArrowLeft size={20} />
-          </button>
+          </Link>
           <h1 className="text-xl font-black text-slate-800">My Orders</h1>
         </header>
 
@@ -123,12 +125,12 @@ export default function OrdersPage() {
               </div>
               <h3 className="font-black text-slate-800 text-lg">No active orders</h3>
               <p className="text-sm text-slate-400 max-w-[200px] mx-auto leading-relaxed">Book a pickup to start your first ritual today!</p>
-              <button 
-                onClick={() => router.push('/dashboard')}
-                className="text-primary font-black uppercase tracking-widest text-xs border-b-2 border-primary pb-1"
+              <Link 
+                href="/dashboard"
+                className="text-primary font-black uppercase tracking-widest text-xs border-b-2 border-primary pb-1 inline-block"
               >
                 Go to Home
-              </button>
+              </Link>
             </div>
           )}
 
@@ -155,22 +157,22 @@ export default function OrdersPage() {
 
         {/* Bottom Nav */}
         <nav className="bottom-nav">
-          <button onClick={() => router.push('/dashboard')} className="flex flex-col items-center gap-1 text-slate-400">
+          <Link href="/dashboard" className="flex flex-col items-center gap-1 text-slate-400">
             <Home size={22} />
             <span className="text-[10px] font-black uppercase tracking-tighter">Home</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 text-primary">
+          </Link>
+          <Link href="/orders" className="flex flex-col items-center gap-1 text-primary">
             <Package size={22} className="stroke-[2.5px]" />
             <span className="text-[10px] font-black uppercase tracking-tighter">Orders</span>
-          </button>
-          <button onClick={() => router.push('/wallet')} className="flex flex-col items-center gap-1 text-slate-400">
+          </Link>
+          <Link href="/wallet" className="flex flex-col items-center gap-1 text-slate-400">
             <Wallet size={22} />
             <span className="text-[10px] font-black uppercase tracking-tighter">Wallet</span>
-          </button>
-          <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-slate-400">
+          </Link>
+          <Link href="/profile" className="flex flex-col items-center gap-1 text-slate-400">
             <User size={22} />
             <span className="text-[10px] font-black uppercase tracking-tighter">Profile</span>
-          </button>
+          </Link>
         </nav>
 
       </div>
