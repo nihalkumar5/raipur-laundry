@@ -12,14 +12,22 @@ import {
   MoreVertical,
   Search,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
+  Zap
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { getAllOrders, updateOrder, getAdminStats } from "@/lib/supabase";
 
 export default function AdminDashboard() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [statsData, setStatsData] = useState({ totalRevenue: 0, totalUsers: 0, pendingOrders: 0 });
+  const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: '', show: false });
+
+  const triggerToast = (msg: string) => {
+    setToast({ message: msg, show: true });
+    setTimeout(() => setToast({ message: '', show: false }), 3000);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,8 +85,8 @@ export default function AdminDashboard() {
               />
             </div>
             <button 
-              onClick={() => alert("Admin Settings & Filters coming soon!")}
-              className="h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center dark:bg-slate-900 dark:border-slate-800 hover:bg-slate-50 transition-all"
+              onClick={() => triggerToast("Admin Settings & Filters coming soon!")}
+              className="h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center dark:bg-slate-900 dark:border-slate-800 hover:bg-slate-50 transition-all active:scale-90"
             >
               <MoreVertical size={20} />
             </button>
@@ -109,7 +117,7 @@ export default function AdminDashboard() {
           <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <h2 className="font-bold">Live Order Management</h2>
             <button 
-              onClick={() => alert("Manage All feature coming soon! Currently viewing all active orders.")}
+              onClick={() => triggerToast("Manage All feature coming soon! Showing active orders.")}
               className="text-sm text-primary font-bold hover:underline"
             >
               Manage All
@@ -173,6 +181,23 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Premium Toast Notification */}
+      <AnimatePresence>
+        {toast.show && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10"
+          >
+            <div className="h-6 w-6 bg-primary rounded-full flex items-center justify-center text-white">
+              <Zap size={14} />
+            </div>
+            <span className="text-sm font-bold tracking-tight">{toast.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
