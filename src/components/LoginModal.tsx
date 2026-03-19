@@ -41,6 +41,7 @@ export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClo
             full_name: fullName,
             email,
             phone: '',
+            role: 'user',
             subscription_status: 'None',
             quota_kg: 0,
             pickup_count_this_week: 0
@@ -67,6 +68,7 @@ export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClo
               full_name: 'Valued Member',
               email,
               phone: '',
+              role: 'user',
               subscription_status: 'None',
               quota_kg: 0,
               pickup_count_this_week: 0
@@ -88,6 +90,7 @@ export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClo
           full_name: fullName || 'Test Member',
           email,
           phone: '9999999999',
+          role: 'user',
           subscription_status: 'Elite',
           quota_kg: 20,
           pickup_count_this_week: 1,
